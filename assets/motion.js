@@ -493,6 +493,17 @@
       });
       reveal(card, 'up', 150 + i * 140);
     });
+    reveal($('.rp-extras', packs), 'up', 0);
+    var custom = $('.rp-custom', packs);
+    if (custom) {
+      custom.addEventListener('pointermove', function (e) {
+        var r = custom.getBoundingClientRect();
+        custom.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        custom.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+      reveal(custom, 'scale', 120);
+      magnetic($('.rp-custom__cta .elementor-button', custom), 0.25);
+    }
   }
 
   /* CIERRE */
