@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Reptilia Motion
  * Description: Capa de animaciones e interacciones "cyber-noir" para el sitio de Reptilia Marketing. No modifica el contenido de las páginas: se desactiva y todo vuelve a como estaba.
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: Reptilia Marketing
  * Requires PHP: 7.4
  */
@@ -87,3 +87,54 @@ add_action('wp_body_open', function () {
 </div>
     <?php
 }, 1);
+
+/**
+ * Muro de portfolio: [reptilia_portfolio]
+ * Lee wp-content/uploads/reptilia-portfolio/manifest.json (piezas y videos ya optimizados).
+ * Sin JavaScript se ve una grilla simple de imágenes; con JavaScript, el muro animado y el visor.
+ */
+add_shortcode('reptilia_portfolio', function () {
+    $up = wp_upload_dir();
+    $dir = trailingslashit($up['basedir']) . 'reptilia-portfolio/';
+    $url = trailingslashit($up['baseurl']) . 'reptilia-portfolio/';
+    if (!file_exists($dir . 'manifest.json')) {
+        return '';
+    }
+    $manifest = json_decode((string) file_get_contents($dir . 'manifest.json'), true);
+    $items = is_array($manifest['items'] ?? null) ? $manifest['items'] : [];
+    foreach ($items as &$item) {
+        foreach (['thumb', 'large', 'poster', 'loop', 'full'] as $key) {
+            if (!empty($item[$key])) {
+                $item[$key] = $url . ltrim($item[$key], '/');
+            }
+        }
+    }
+    unset($item);
+    if (!$items) {
+        return '';
+    }
+
+    $fallback = '';
+    $shown = 0;
+    foreach ($items as $item) {
+        if ($item['type'] !== 'image' || $shown >= 12) {
+            continue;
+        }
+        $shown++;
+        $fallback .= sprintf(
+            '<a href="%s" target="_blank" rel="noopener"><img src="%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"></a>',
+            esc_url($item['large']),
+            esc_url($item['thumb']),
+            esc_attr($item['client'] ? 'Pieza para ' . $item['client'] : 'Pieza de portfolio'),
+            (int) $item['w'],
+            (int) $item['h']
+        );
+    }
+
+    return '<div class="rp-wall" data-count="' . count($items) . '">'
+        . '<script type="application/json" class="rp-wall__data">'
+        . wp_json_encode($items, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+        . '</script>'
+        . '<div class="rp-wall__fallback">' . $fallback . '</div>'
+        . '</div>';
+});
