@@ -60,8 +60,12 @@
   var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (!e.isIntersecting) return;
-      e.target.classList.add('rp-in');
-      onReveal.forEach(function (fn) { fn(e.target); });
+      var t = e.target;
+      t.classList.add('rp-in');
+      onReveal.forEach(function (fn) { fn(t); });
+      // Terminada la entrada, sin demora: así los efectos de hover responden al instante
+      var d = parseInt(t.style.getPropertyValue('--d'), 10) || 0;
+      setTimeout(function () { t.style.setProperty('--d', '0ms'); t.classList.add('rp-done'); }, d + 1400);
       io.unobserve(e.target);
     });
   }, { rootMargin: '0px 0px -8% 0px', threshold: 0.04 }) : null;
@@ -361,6 +365,54 @@
     });
   });
 
+  /* Recorta el margen vacío de un logo (PNG cuadrado con mucho aire alrededor).
+     Devuelve la imagen recortada y su proporción, o null si no se pudo leer. */
+  var trimCache = {};
+  function trimLogo(src) {
+    if (trimCache[src]) return trimCache[src];
+    trimCache[src] = new Promise(function (resolve) {
+      var im = new Image();
+      im.onload = function () {
+        try {
+          var w = im.naturalWidth, h = im.naturalHeight;
+          var cv = document.createElement('canvas');
+          cv.width = w;
+          cv.height = h;
+          var cx = cv.getContext('2d');
+          cx.drawImage(im, 0, 0);
+          var d = cx.getImageData(0, 0, w, h).data;
+          var minX = w, minY = h, maxX = -1, maxY = -1;
+          for (var y = 0; y < h; y++) {
+            for (var x = 0; x < w; x++) {
+              var i = (y * w + x) * 4;
+              // "Tinta" = píxel visible y no casi negro (algunos PNG traen fondo negro)
+              if (d[i + 3] > 24 && d[i] + d[i + 1] + d[i + 2] > 90) {
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+              }
+            }
+          }
+          if (maxX < 0) { resolve(null); return; }
+          var pad = 3;
+          minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad);
+          maxX = Math.min(w - 1, maxX + pad); maxY = Math.min(h - 1, maxY + pad);
+          var out = document.createElement('canvas');
+          out.width = maxX - minX + 1;
+          out.height = maxY - minY + 1;
+          out.getContext('2d').drawImage(cv, minX, minY, out.width, out.height, 0, 0, out.width, out.height);
+          resolve({ url: out.toDataURL('image/png'), ratio: out.width / out.height });
+        } catch (e) {
+          resolve(null); // p. ej. imagen servida desde otro dominio
+        }
+      };
+      im.onerror = function () { resolve(null); };
+      im.src = src;
+    });
+    return trimCache[src];
+  }
+
   /* CLIENTES: cinta infinita de logos */
   var logoGrid = el('e1b576b');
   if (logoGrid) {
@@ -377,10 +429,24 @@
             var item = document.createElement('div');
             item.className = 'rp-marquee__item';
             var c = document.createElement('img');
-            c.src = img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.currentSrc || img.src;
+            var src = img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.currentSrc || img.src;
             c.alt = copy === 0 ? (img.alt || '') : '';
-            c.loading = 'lazy';
             c.decoding = 'async';
+            c.className = 'rp-pending';
+            (function (node, url) {
+              trimLogo(url).then(function (res) {
+                if (res) {
+                  node.src = res.url;
+                  // Altura según la forma: logos anchos más bajos, logos cuadrados más altos
+                  var hgt = res.ratio > 4 ? 30 : res.ratio > 2.6 ? 38 : res.ratio > 1.5 ? 48 : 62;
+                  node.style.setProperty('--h', hgt + 'px');
+                } else {
+                  node.src = url;
+                  node.classList.add('rp-untrimmed');
+                }
+                node.classList.remove('rp-pending');
+              });
+            })(c, src);
             if (copy > 0) item.setAttribute('aria-hidden', 'true');
             item.appendChild(c);
             track.appendChild(item);
@@ -406,6 +472,28 @@
     }
   }
   reveal(el('a2bf3c1'), 'split', 0);
+
+  /* PACKS DE SERVICIOS */
+  var packs = $('.rp-packs');
+  if (packs) {
+    reveal($('.rp-packs__eyebrow', packs), 'up', 0);
+    reveal($('.rp-packs__title', packs), 'split', 80);
+    var packTitle = $('.rp-packs__title', packs);
+    if (packTitle) {
+      $$('.rp-word', packTitle).forEach(function (w) {
+        if (/crecer/i.test(w.textContent)) w.classList.add('rp-hl');
+      });
+    }
+    reveal($('.rp-packs__intro', packs), 'up', 200);
+    $$('.rp-pack', packs).forEach(function (card, i) {
+      card.addEventListener('pointermove', function (e) {
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+      reveal(card, 'up', 150 + i * 140);
+    });
+  }
 
   /* CIERRE */
   var cta = el('437f3c13');
