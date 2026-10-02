@@ -617,7 +617,7 @@ function rp_calc_send_emails(int $id): bool
 
     $okClient = wp_mail(
         $clientEmail,
-        'Copia de tu presupuesto Reptilia',
+        'Tu recibo de Reptilia 🐍',
         rp_calc_email_html($id, false),
         array_merge($html, ['Reply-To: Reptilia Marketing <' . RP_CALC_OWNER_EMAIL . '>']),
         [$file]
