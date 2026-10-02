@@ -289,8 +289,9 @@ add_action('rest_api_init', function () {
         'methods' => 'POST',
         'permission_callback' => '__return_true',
         'callback' => function (WP_REST_Request $r) {
-            if ((string) $r->get_param('website') !== '') { // trampa para bots
-                return new WP_REST_Response(['ok' => true, 'lead' => 0, 'token' => ''], 200);
+            // Chequeo anti-bots: el navegador marca el envío y mide cuánto tardó en completarse el formulario.
+            if ((string) $r->get_param('h') !== 'rp1' || (int) $r->get_param('t') < 1500) {
+                return new WP_REST_Response(['ok' => false, 'error' => 'Esperá un segundo y volvé a tocar el botón.'], 400);
             }
             if (rp_calc_rate_limited('lead', 15)) {
                 return new WP_REST_Response(['ok' => false, 'error' => 'Demasiados intentos. Probá de nuevo en un rato.'], 429);
@@ -344,19 +345,16 @@ add_action('rest_api_init', function () {
             update_post_meta($id, 'rp_quote', $quote);
             wp_update_post(['ID' => $id]); // actualiza la fecha de modificación
 
-            $mail = rp_calc_send_emails($id);
+            rp_calc_send_emails_after_response($id);
             $name = rp_calc_name($id);
             $wa = sprintf(
-                "¡Hola Dani! Soy %s. Armé mi plan personalizado en la web (presupuesto %s) por %s y quiero seguir con la gestión.",
+                "¡Hola Dani! Soy %s. Armé mi plan personalizado en la web por %s y quiero seguir con la gestión.",
                 $name,
-                $number,
                 rp_calc_money($quote['total'], $quote['currency'])
             );
             return new WP_REST_Response([
                 'ok' => true,
-                'number' => $number,
                 'quote' => $quote,
-                'mail_sent' => $mail,
                 'whatsapp' => 'https://wa.me/' . RP_CALC_WHATSAPP . '?text=' . rawurlencode($wa),
                 'pdf' => rest_url('reptilia/v1/presupuesto/' . $id . '/pdf') . '?token=' . get_post_meta($id, 'rp_token', true),
             ], 200);
@@ -437,7 +435,7 @@ function rp_calc_pdf(int $id): string
         $pdf->text($x, 40, 'REPTILIA', 22, '#FFFFFF', true);
         $pdf->text($x, 70, 'Marketing para pymes con estrategia e IA', 10, '#C9A7FF');
         $pdf->text($W - $M, 38, 'PRESUPUESTO', 11, '#C9A7FF', true, 'R');
-        $pdf->text($W - $M, 58, $q['number'], 20, '#FFFFFF', true, 'R');
+        $pdf->text($W - $M, 58, 'Plan a medida', 17, '#FFFFFF', true, 'R');
         $pdf->text($W - $M, 86, 'Fecha: ' . $q['date'], 9, '#BDB6C8', false, 'R');
     };
 
@@ -517,7 +515,7 @@ function rp_calc_pdf(int $id): string
     $notes = [
         'Valores de referencia, sujetos a confirmación según el alcance final del trabajo.',
         $cur === 'USD' ? 'Conversión al dólar oficial del día: US$ 1 = $' . number_format($q['rate'], 0, ',', '.') . '.' : '',
-        'Para avanzar, escribinos por WhatsApp citando el número ' . $q['number'] . '.',
+        'Para avanzar, escribinos por WhatsApp y seguimos con la gestión.',
     ];
     $ny = $top;
     $nw = $bx - 14 - $M - 28;
@@ -540,7 +538,7 @@ function rp_calc_send_pdf(int $id)
     $pdf = rp_calc_pdf($id);
     nocache_headers();
     header('Content-Type: application/pdf');
-    header('Content-Disposition: inline; filename="Presupuesto-Reptilia-' . sanitize_file_name($q['number'] ?? 'RP') . '.pdf"');
+    header('Content-Disposition: inline; filename="Presupuesto-Reptilia.pdf"');
     header('Content-Length: ' . strlen($pdf));
     echo $pdf; // phpcs:ignore
     exit;
@@ -562,13 +560,13 @@ function rp_calc_email_html(int $id, bool $forOwner): string
     $disc = $q['discount_pct'] ? '<tr><td style="padding:8px 0;color:#7b2cbf">Descuento por volumen (' . (int) $q['discount_pct'] . '%)</td><td style="padding:8px 0;text-align:right;color:#7b2cbf">−' . esc_html(rp_calc_money($q['discount'], $q['currency'])) . '</td></tr>' : '';
     $intro = $forOwner
         ? '<p style="margin:0 0 6px;font-size:15px;color:#15101c"><strong>Nuevo presupuesto desde la web</strong></p><p style="margin:0 0 18px;color:#5c5668">' . $name . ' · ' . esc_html(get_post_meta($id, 'rp_email', true)) . ' · ' . esc_html(get_post_meta($id, 'rp_phone', true)) . ' · ' . esc_html($q['segment_label']) . '</p>'
-        : '<p style="margin:0 0 6px;font-size:16px;color:#15101c">¡Hola ' . $name . '!</p><p style="margin:0 0 18px;color:#5c5668">Gracias por armar tu plan con Reptilia. Te dejamos el detalle y el PDF adjunto. Para avanzar, respondé este correo o escribinos por WhatsApp citando tu número de presupuesto.</p>';
-    $wa = 'https://wa.me/' . RP_CALC_WHATSAPP . '?text=' . rawurlencode('¡Hola Dani! Quiero seguir con mi presupuesto ' . $q['number'] . '.');
+        : '<p style="margin:0 0 18px;font-size:16px;color:#15101c">¡Hola ' . $name . '! Esta es la copia de tu presupuesto.</p>';
+    $wa = 'https://wa.me/' . RP_CALC_WHATSAPP . '?text=' . rawurlencode('¡Hola Dani! Quiero seguir con el presupuesto que armé en la web.');
     $cta = $forOwner ? '' : '<p style="margin:26px 0 0;text-align:center"><a href="' . esc_url($wa) . '" style="display:inline-block;background:#7b2cbf;color:#fff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:999px">Seguir por WhatsApp</a></p>';
     return '<div style="background:#f3eff9;padding:28px 12px;font-family:Arial,Helvetica,sans-serif">'
         . '<div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden">'
         . '<div style="background:#000;padding:24px 28px;border-bottom:4px solid #8a2be2"><div style="color:#fff;font-size:20px;font-weight:bold;letter-spacing:4px">REPTILIA</div>'
-        . '<div style="color:#c9a7ff;font-size:12px;margin-top:4px">Presupuesto ' . esc_html($q['number']) . ' · ' . esc_html($q['date']) . '</div></div>'
+        . '<div style="color:#c9a7ff;font-size:12px;margin-top:4px">' . ($forOwner ? 'Presupuesto ' . esc_html($q['number']) . ' · ' : '') . esc_html($q['date']) . '</div></div>'
         . '<div style="padding:26px 28px">' . $intro
         . '<table style="width:100%;border-collapse:collapse;font-size:14px">' . $rows
         . '<tr><td style="padding:12px 0 4px;color:#5c5668">Subtotal (' . (int) $q['units'] . ' ítems)</td><td style="padding:12px 0 4px;text-align:right;color:#5c5668">' . esc_html(rp_calc_money($q['subtotal'], $q['currency'])) . '</td></tr>'
@@ -579,14 +577,37 @@ function rp_calc_email_html(int $id, bool $forOwner): string
         . '</div></div></div>';
 }
 
+/**
+ * Manda los correos cuando la respuesta ya le llegó al navegador, así la ventana de gracias
+ * aparece al instante en vez de esperar ~8 s a Gmail. Si el servidor no permite cerrar la
+ * conexión antes, se mandan igual (solo que la respuesta tarda más).
+ */
+function rp_calc_send_emails_after_response(int $id): void
+{
+    add_action('shutdown', function () use ($id) {
+        ignore_user_abort(true);
+        if (function_exists('litespeed_finish_request') || function_exists('fastcgi_finish_request')) {
+            while (ob_get_level() > 0) {
+                @ob_end_flush();
+            }
+            function_exists('litespeed_finish_request') ? litespeed_finish_request() : fastcgi_finish_request();
+        }
+        @set_time_limit(120);
+        rp_calc_send_emails($id);
+    }, 0);
+}
+
 /** Envía el PDF al cliente y a Reptilia. Devuelve true si salieron los dos correos. */
 function rp_calc_send_emails(int $id): bool
 {
     $q = get_post_meta($id, 'rp_quote', true);
     $dir = trailingslashit(get_temp_dir()) . 'rp-' . wp_generate_password(10, false);
     wp_mkdir_p($dir);
-    $file = $dir . '/Presupuesto-Reptilia-' . $q['number'] . '.pdf';
-    file_put_contents($file, rp_calc_pdf($id));
+    $pdf = rp_calc_pdf($id);
+    $file = $dir . '/Presupuesto-Reptilia.pdf';
+    $ownerFile = $dir . '/Presupuesto-Reptilia-' . $q['number'] . '.pdf';
+    file_put_contents($file, $pdf);
+    file_put_contents($ownerFile, $pdf);
 
     $clientEmail = get_post_meta($id, 'rp_email', true);
     $name = rp_calc_name($id);
@@ -596,7 +617,7 @@ function rp_calc_send_emails(int $id): bool
 
     $okClient = wp_mail(
         $clientEmail,
-        'Tu presupuesto Reptilia ' . $q['number'],
+        'Copia de tu presupuesto Reptilia',
         rp_calc_email_html($id, false),
         array_merge($html, ['Reply-To: Reptilia Marketing <' . RP_CALC_OWNER_EMAIL . '>']),
         [$file]
@@ -606,10 +627,11 @@ function rp_calc_send_emails(int $id): bool
         'Nuevo presupuesto web ' . $q['number'] . ' · ' . $name . ' · ' . rp_calc_money($q['total'], $q['currency']),
         rp_calc_email_html($id, true),
         array_merge($html, ['Reply-To: ' . $name . ' <' . $clientEmail . '>']),
-        [$file]
+        [$ownerFile]
     );
     remove_filter('wp_mail_from_name', $fromName, 20);
     @unlink($file);
+    @unlink($ownerFile);
     @rmdir($dir);
     update_post_meta($id, 'rp_mail', ['client' => (bool) $okClient, 'owner' => (bool) $okOwner, 'at' => current_time('mysql')]);
     return $okClient && $okOwner;

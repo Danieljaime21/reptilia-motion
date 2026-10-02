@@ -18,6 +18,7 @@
   var lastTier = 0;
 
   try { lead = JSON.parse(sessionStorage.getItem(KEY_LEAD) || 'null'); } catch (e) { lead = null; }
+  if (lead && !lead.id) lead = null; // datos viejos sin contacto guardado
   try { Object.assign(state, JSON.parse(sessionStorage.getItem(KEY_STATE) || '{}')); } catch (e) { /* sin estado previo */ }
 
   var byId = {};
@@ -131,7 +132,6 @@
       field('name', 'Nombre y apellido', 'text', 'name', '') +
       field('phone', 'WhatsApp', 'tel', 'tel', '+54 9 341 …') +
       field('email', 'Email', 'email', 'email', 'tu@email.com') +
-      '<input type="text" name="website" tabindex="-1" autocomplete="off" class="rp-hp" aria-hidden="true">' +
       '<label class="rp-check"><input type="checkbox" name="consent" required><span>Acepto que Reptilia guarde estos datos para enviarme el presupuesto y contactarme.</span></label>' +
       '<p class="rp-gate__error" role="alert" hidden></p>' +
       '<button type="submit" class="rp-btn rp-btn--primary rp-btn--big">Empezar a armar mi plan <span aria-hidden="true">→</span></button>' +
@@ -142,10 +142,11 @@
   }
   function bindGate(body) {
     var form = body.querySelector('.rp-gate');
+    var shownAt = Date.now();
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var fd = new FormData(form);
-      var data = { name: (fd.get('name') || '').trim(), phone: (fd.get('phone') || '').trim(), email: (fd.get('email') || '').trim(), consent: fd.get('consent') ? 1 : 0, website: fd.get('website') || '' };
+      var data = { name: (fd.get('name') || '').trim(), phone: (fd.get('phone') || '').trim(), email: (fd.get('email') || '').trim(), consent: fd.get('consent') ? 1 : 0, h: 'rp1', t: Date.now() - shownAt };
       var err = form.querySelector('.rp-gate__error');
       var problems = [];
       if (data.name.length < 2) problems.push('tu nombre');
@@ -162,7 +163,7 @@
       btn.classList.add('is-loading');
       post('lead', data).then(function (res) {
         if (!res.ok) throw new Error(res.error || 'No pudimos guardar tus datos.');
-        lead = { id: res.lead, token: res.token, name: res.name || data.name, email: data.email };
+        lead = { id: res.lead, token: res.token, name: res.name || data.name, email: data.email, phone: data.phone };
         try { sessionStorage.setItem(KEY_LEAD, JSON.stringify(lead)); } catch (e2) { /* modo privado */ }
         render();
         var first = root.querySelector('.rp-calc__seg button');
@@ -391,7 +392,7 @@
     btn.disabled = true;
     btn.classList.add('is-loading');
     btn.firstChild.textContent = 'Generando tu presupuesto… ';
-    post('presupuesto', { lead: lead.id, token: lead.token, items: state.qty, segment: state.segment, currency: state.currency })
+    sendQuote(true)
       .then(function (res) {
         if (!res.ok) {
           if (res.error && /venció/.test(res.error)) {
@@ -414,6 +415,21 @@
       });
   }
 
+  /* Si la sesión venció pero tenemos los datos, se vuelve a registrar sola y reintenta una vez */
+  function sendQuote(retry) {
+    return post('presupuesto', { lead: lead.id, token: lead.token, items: state.qty, segment: state.segment, currency: state.currency })
+      .then(function (res) {
+        if (res.ok || !retry || !res.error || !/venció/.test(res.error) || !lead.phone) return res;
+        return post('lead', { name: lead.name, email: lead.email, phone: lead.phone, consent: 1, h: 'rp1', t: 9999 }).then(function (l) {
+          if (!l.ok) return res;
+          lead.id = l.lead;
+          lead.token = l.token;
+          try { sessionStorage.setItem(KEY_LEAD, JSON.stringify(lead)); } catch (e) { /* modo privado */ }
+          return sendQuote(false);
+        });
+      });
+  }
+
   function thanks(body, res) {
     var q = res.quote;
     var box = body.querySelector('.rp-thanks');
@@ -424,13 +440,14 @@
     box.innerHTML =
       '<div class="rp-thanks__card">' +
         '<div class="rp-thanks__check" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-16"/></svg></div>' +
-        '<span class="rp-thanks__num">Presupuesto ' + esc(res.number) + '</span>' +
+        '<span class="rp-thanks__num">Presupuesto enviado</span>' +
         '<h3 id="rp-thanks-title">¡Gracias, ' + esc(lead.name.split(' ')[0]) + '!</h3>' +
-        '<p>Tu plan a medida quedó en <strong>' + total + '</strong>' + (q.discount_pct ? ' con un <strong>' + q.discount_pct + '% de descuento</strong>' : '') + '.</p>' +
-        '<p class="rp-thanks__mail">' + (res.mail_sent ? 'Te enviamos el detalle en PDF a <strong>' + esc(lead.email || 'tu email') + '</strong>.' : 'Descargá el detalle en PDF y escribinos para avanzar.') + '</p>' +
+        '<p>Recibimos tu plan a medida por <strong>' + total + '</strong>' + (q.discount_pct ? ' con un <strong>' + q.discount_pct + '% de descuento</strong>' : '') + '.</p>' +
+        '<p class="rp-thanks__mail">Te enviamos una copia en PDF a <strong>' + esc(lead.email || 'tu email') + '</strong>. Si no la ves en unos minutos, revisá Spam.</p>' +
+        '<div class="rp-thanks__next"><strong>¿Querés seguir con la gestión?</strong><span>Escribinos por WhatsApp y lo ponemos en marcha.</span></div>' +
         '<a class="rp-btn rp-btn--wa rp-btn--big" href="' + esc(res.whatsapp) + '" target="_blank" rel="noopener">' +
           '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3a2.5 2.5 0 0 0-.8 1.9 4.4 4.4 0 0 0 .9 2.3 10 10 0 0 0 3.8 3.4c1.4.6 2 .7 2.7.6.4-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>' +
-          'Seguir por WhatsApp</a>' +
+          'Continuar por WhatsApp</a>' +
         '<div class="rp-thanks__row">' +
           '<a class="rp-btn rp-btn--ghost" href="' + esc(res.pdf) + '" target="_blank" rel="noopener">Descargar PDF</a>' +
           '<button type="button" class="rp-btn rp-btn--ghost rp-thanks__back">Seguir editando</button>' +
