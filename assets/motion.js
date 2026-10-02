@@ -744,8 +744,10 @@
   var pen = el('1f6a7b5');
 
   /* FOOTER */
-  ['92e437e', '350c62e', 'ba1d580', '78ef72e'].forEach(function (id, i) {
-    reveal(el(id), 'up', i * 110);
+  // Solo fundido (sin desplazamiento): al final de la página un elemento corrido hacia abajo
+  // agrandaba el documento y dejaba ver una franja del fondo. Correo y copyright quedan fijos.
+  ['92e437e', '350c62e'].forEach(function (id, i) {
+    reveal(el(id), 'fade', i * 140);
   });
 
   /* OTRAS PÁGINAS hechas con Elementor: aparición genérica */

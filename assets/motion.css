@@ -953,23 +953,33 @@ html.rp-motion .elementor-element-765ceeaa .elementor-button-wrapper::before { a
 
 /* ---------- FOOTER ---------- */
 
-/* "Horizonte" de neón donde termina el degradé violeta del cierre */
-.elementor-element-cad3446 { position: relative; }
-.elementor-element-cad3446::before {
-  content: "";
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--rp-lilac), #fff, var(--rp-lilac), transparent);
-  box-shadow: 0 0 18px 2px rgba(138, 43, 226, 0.75);
-  opacity: 0.85;
-  pointer-events: none;
-}
+
 
 .elementor-element-92e437e img { transition: filter 0.6s ease, transform 0.8s var(--rp-ease); }
-html.rp-motion .elementor-element-92e437e img { animation: rp-logo-glow 5s ease-in-out infinite; }
+/* El PNG del logo trae fondo negro opaco: se funde con "lighten" y una máscara suave,
+   y el brillo violeta late DETRÁS del logo (no sobre el cuadrado) */
+.elementor-element-92e437e { position: relative; }
+.elementor-element-92e437e .elementor-widget-container { position: relative; display: inline-block; isolation: isolate; }
+.elementor-element-92e437e .elementor-widget-container::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 62%;
+  aspect-ratio: 1.6;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(138, 43, 226, 0.55), rgba(101, 40, 247, 0.15) 60%, transparent);
+  filter: blur(18px);
+  z-index: -1;
+  pointer-events: none;
+}
+html.rp-motion .elementor-element-92e437e .elementor-widget-container::before { animation: rp-pulse 5s ease-in-out infinite; }
+.elementor-element-92e437e img {
+  mix-blend-mode: lighten;
+  -webkit-mask-image: radial-gradient(ellipse 50% 46% at 50% 50%, #000 62%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 46% at 50% 50%, #000 62%, transparent 100%);
+}
 .elementor-element-350c62e .elementor-icon-list-item a,
 .elementor-element-350c62e .elementor-icon-list-icon { transition: transform 0.4s var(--rp-ease), filter 0.3s; }
 .elementor-element-350c62e .elementor-icon-list-item:hover .elementor-icon-list-icon {
@@ -1473,3 +1483,7 @@ html.rp-lb-open, html.rp-lb-open body { overflow: hidden !important; }
   .rp-lb__next { right: calc(50% - 64px); }
   .rp-lb__media img, .rp-lb__media video { max-height: calc(100vh - 210px); }
 }
+
+
+/* Portada oscura: el fondo del documento acompaña (evita franjas blancas al final) */
+html:has(body.home), body.home { background-color: #000 !important; }
