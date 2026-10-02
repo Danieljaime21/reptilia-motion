@@ -591,6 +591,8 @@ function rp_calc_send_emails(int $id): bool
     $clientEmail = get_post_meta($id, 'rp_email', true);
     $name = rp_calc_name($id);
     $html = ['Content-Type: text/html; charset=UTF-8'];
+    $fromName = fn() => 'Reptilia Marketing';
+    add_filter('wp_mail_from_name', $fromName, 20);
 
     $okClient = wp_mail(
         $clientEmail,
@@ -606,6 +608,7 @@ function rp_calc_send_emails(int $id): bool
         array_merge($html, ['Reply-To: ' . $name . ' <' . $clientEmail . '>']),
         [$file]
     );
+    remove_filter('wp_mail_from_name', $fromName, 20);
     @unlink($file);
     @rmdir($dir);
     update_post_meta($id, 'rp_mail', ['client' => (bool) $okClient, 'owner' => (bool) $okOwner, 'at' => current_time('mysql')]);
