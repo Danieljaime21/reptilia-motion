@@ -14,7 +14,12 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/class-rp-pdf.php';
 
-const RP_CALC_OWNER_EMAIL = 'reptiliamarketing@gmail.com';
+/** Dónde llega el aviso de cada presupuesto: opción `rp_calc_owner_email`, o el email de administrador del sitio. */
+function rp_calc_owner_email(): string
+{
+    $email = (string) get_option('rp_calc_owner_email', '');
+    return is_email($email) ? $email : (string) get_option('admin_email');
+}
 const RP_CALC_WHATSAPP = '5493417539204';
 const RP_CALC_USD_FALLBACK = 1545; // dólar oficial venta al 01/10/2026, por si falla la consulta
 
@@ -619,11 +624,11 @@ function rp_calc_send_emails(int $id): bool
         $clientEmail,
         'Tu recibo de Reptilia 🐍',
         rp_calc_email_html($id, false),
-        array_merge($html, ['Reply-To: Reptilia Marketing <' . RP_CALC_OWNER_EMAIL . '>']),
+        array_merge($html, ['Reply-To: Reptilia Marketing <' . rp_calc_owner_email() . '>']),
         [$file]
     );
     $okOwner = wp_mail(
-        RP_CALC_OWNER_EMAIL,
+        rp_calc_owner_email(),
         'Nuevo presupuesto web ' . $q['number'] . ' · ' . $name . ' · ' . rp_calc_money($q['total'], $q['currency']),
         rp_calc_email_html($id, true),
         array_merge($html, ['Reply-To: ' . $name . ' <' . $clientEmail . '>']),

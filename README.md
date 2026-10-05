@@ -34,11 +34,10 @@ Pensado para el stack **WordPress + Astra + Elementor** (probado con Elementor 4
 
 ## Configuración
 
-Los datos propios del negocio están como constantes al inicio de `includes/calculator.php`:
+El aviso de cada presupuesto llega a la opción de WordPress `rp_calc_owner_email` (si no existe, al email de administrador del sitio). Las demás constantes están al inicio de `includes/calculator.php`:
 
 | Constante | Para qué sirve |
 |---|---|
-| `RP_CALC_OWNER_EMAIL` | Dónde llega el aviso de cada presupuesto |
 | `RP_CALC_WHATSAPP` | Número del botón "Continuar por WhatsApp" |
 | `RP_CALC_USD_FALLBACK` | Cotización de respaldo si falla la consulta en vivo |
 
