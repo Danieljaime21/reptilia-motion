@@ -104,6 +104,14 @@ Un panel a pantalla completa que se abre desde cualquier enlace a `#calculadora`
   </tr>
 </table>
 
+## 🔎 SEO local
+
+Módulo `includes/seo.php` pensado para posicionar un negocio de servicios en su zona (en este caso, Rosario y Gran Rosario):
+
+- **Shortcode `[reptilia_rosario]`:** zonas de cobertura, servicios y preguntas frecuentes en HTML semántico (`<details>`), sin JavaScript.
+- **Datos estructurados (JSON-LD):** `ProfessionalService` con zonas de servicio y `FAQPage`. Ambos salen de las mismas funciones que pintan la página, así que lo que Google lee y lo que ve la persona nunca se desfasan.
+- Un solo H1 por página, títulos y descripciones propios y una imagen de 1200×630 para compartir el enlace.
+
 ### Decisiones técnicas
 
 | Decisión | Por qué |
@@ -145,9 +153,11 @@ reptilia-motion/
 ├── reptilia-motion.php        # arranque, intro, shortcode del portfolio
 ├── assets/
 │   ├── motion.css / motion.js # portada animada y muro de portfolio
-│   └── calc.css  / calc.js    # panel de la calculadora
+│   ├── calc.css  / calc.js    # panel de la calculadora
+│   └── seo.css                # sección de SEO local
 └── includes/
     ├── calculator.php         # servicios, precios, REST, correos, panel de admin
+    ├── seo.php                # SEO local: sección, FAQ y datos estructurados
     └── class-rp-pdf.php       # escritor mínimo de PDF
 ```
 
@@ -155,7 +165,7 @@ reptilia-motion/
 
 El historial está etiquetado:
 
-`v1.0` animaciones → `v1.1` retrato y packs → `v1.2` planes → `v1.3` portfolio → `v1.4` calculadora → `v1.5` confirmación instantánea y correos en segundo plano.
+`v1.0` animaciones → `v1.1` retrato y packs → `v1.2` planes → `v1.3` portfolio → `v1.4` calculadora → `v1.5` confirmación instantánea y correos en segundo plano → `v1.6` SEO local.
 
 ## 📄 Licencia
 

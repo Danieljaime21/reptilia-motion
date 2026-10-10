@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Reptilia Motion
  * Description: Capa de animaciones e interacciones "cyber-noir" para el sitio de Reptilia Marketing. No modifica el contenido de las páginas: se desactiva y todo vuelve a como estaba.
- * Version: 1.5.2
+ * Version: 1.6.0
  * Author: Reptilia Marketing
  * Requires PHP: 7.4
  */
@@ -140,3 +140,4 @@ add_shortcode('reptilia_portfolio', function () {
 });
 
 require_once RP_MOTION_DIR . 'includes/calculator.php';
+require_once RP_MOTION_DIR . 'includes/seo.php';

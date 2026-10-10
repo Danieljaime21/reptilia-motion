@@ -1,0 +1,43 @@
+/* Sección "Marketing digital en Rosario": cobertura, servicios y preguntas frecuentes */
+.rp-local { width: 100%; max-width: 1080px; margin: 0 auto; display: grid; gap: 44px; color: rgba(255, 255, 255, 0.82); }
+
+.rp-local__zones { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.rp-local__zones li {
+  margin: 0; padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; color: #e9ddff;
+  background: rgba(138, 43, 226, 0.14); box-shadow: inset 0 0 0 1px rgba(201, 167, 255, 0.28);
+}
+.rp-local__zones li:first-child { background: #7b2cbf; box-shadow: none; color: #fff; }
+
+.rp-local__services { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+.rp-local__services li {
+  flex: 1 1 230px; max-width: calc(25% - 12px); box-sizing: border-box;
+  margin: 0; padding: 22px 22px 24px; border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09);
+}
+.rp-local__services h3 { margin: 0 0 8px !important; font-size: 18px !important; line-height: 1.25 !important; font-weight: 700 !important; color: #fff !important; }
+.rp-local__services p { margin: 0; font-size: 14.5px; line-height: 1.55; color: rgba(255, 255, 255, 0.7); }
+
+.rp-faq { display: grid; gap: 10px; max-width: 820px; width: 100%; margin: 0 auto; }
+.rp-faq__title { margin: 0 0 8px !important; text-align: center; font-size: clamp(22px, 3vw, 28px) !important; font-weight: 800 !important; color: #fff !important; }
+.rp-faq__item { border-radius: 16px; background: rgba(255, 255, 255, 0.04); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09); transition: box-shadow 0.25s ease, background 0.25s ease; }
+.rp-faq__item[open] { background: rgba(138, 43, 226, 0.1); box-shadow: inset 0 0 0 1px rgba(201, 167, 255, 0.4); }
+.rp-faq__item summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 18px 22px; font-size: 16.5px; font-weight: 600; color: #fff;
+}
+.rp-faq__item summary::-webkit-details-marker { display: none; }
+.rp-faq__item summary::after { content: '+'; flex: none; font-size: 24px; line-height: 1; color: #c9a7ff; transition: transform 0.25s ease; }
+.rp-faq__item[open] summary::after { transform: rotate(45deg); }
+.rp-faq__item summary:focus-visible { outline: 2px solid #c9a7ff; outline-offset: 2px; border-radius: 16px; }
+.rp-faq__item p { margin: 0; padding: 0 22px 20px; font-size: 15px; line-height: 1.65; color: rgba(255, 255, 255, 0.76); }
+
+@media (max-width: 900px) {
+  .rp-local__services li { max-width: calc(50% - 8px); }
+}
+@media (max-width: 600px) {
+  .rp-local__services li { max-width: 100%; }
+  .rp-local { gap: 34px; }
+  .rp-faq__item summary { padding: 16px 18px; font-size: 15.5px; }
+  .rp-faq__item p { padding: 0 18px 18px; }
+}
