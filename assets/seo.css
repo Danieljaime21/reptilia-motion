@@ -44,3 +44,6 @@
 
 /* Línea discreta al pie */
 .rp-seo-foot { margin: 0; padding: 4px 20px 28px; text-align: center; font-size: 12px; line-height: 1.5; color: rgba(255, 255, 255, 0.36); background: #000; }
+@media (max-width: 921px) {
+  .rp-seo-foot { padding-bottom: 84px; }
+}
