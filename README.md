@@ -113,6 +113,15 @@ Módulo `includes/seo.php` pensado para posicionar un negocio de servicios en su
 - **Shortcode `[reptilia_rosario]`:** sección completa de zonas, servicios y preguntas frecuentes en HTML semántico, disponible por si se quiere mostrar. Si se publica visible, también corresponde publicar su marcado `FAQPage`.
 - Un solo H1 por página, títulos y descripciones propios y una imagen de 1200×630 para compartir el enlace.
 
+## 📱 Versión celular
+
+Módulo `includes/mobile.php` + `assets/mobile.css` + `assets/mobile.js`. La hoja de estilos se carga con `media="(max-width: 921px)"`, así que en escritorio ni siquiera se descarga.
+
+- **Encabezado:** logo más chico y accesos de texto "Planes" y "Armá tu presupuesto" junto al botón de contacto (sin forma de botón, para que se distingan).
+- **Hero a pantalla completa:** al abrir solo se ve el encabezado, la imagen y los títulos; los servicios aparecen al empezar a bajar.
+- **Planes deslizables:** las tres tarjetas se recorren de costado con *scroll snap*, con puntos indicadores y arrancando en el plan recomendado.
+- **Sin desborde horizontal:** el hero y la marquesina se salen a propósito del ancho; se recortan en `<html>` (con overflow solo en `<body>`, los navegadores móviles ensanchaban toda la página).
+
 ### Decisiones técnicas
 
 | Decisión | Por qué |
@@ -155,10 +164,12 @@ reptilia-motion/
 ├── assets/
 │   ├── motion.css / motion.js # portada animada y muro de portfolio
 │   ├── calc.css  / calc.js    # panel de la calculadora
-│   └── seo.css                # sección de SEO local
+│   ├── seo.css                # sección de SEO local
+│   └── mobile.css / mobile.js # ajustes solo para celular
 └── includes/
     ├── calculator.php         # servicios, precios, REST, correos, panel de admin
     ├── seo.php                # SEO local: sección, FAQ y datos estructurados
+    ├── mobile.php             # carga de los ajustes para celular
     └── class-rp-pdf.php       # escritor mínimo de PDF
 ```
 
@@ -166,7 +177,7 @@ reptilia-motion/
 
 El historial está etiquetado:
 
-`v1.0` animaciones → `v1.1` retrato y packs → `v1.2` planes → `v1.3` portfolio → `v1.4` calculadora → `v1.5` confirmación instantánea y correos en segundo plano → `v1.6` SEO local.
+`v1.0` animaciones → `v1.1` retrato y packs → `v1.2` planes → `v1.3` portfolio → `v1.4` calculadora → `v1.5` confirmación instantánea y correos en segundo plano → `v1.6` SEO local → `v1.7` versión celular.
 
 ## 📄 Licencia
 

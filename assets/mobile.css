@@ -1,0 +1,79 @@
+/* Reptilia Motion: ajustes solo para celular.
+   Se carga con media="(max-width: 921px)"; el bloque de 767px es para teléfonos. */
+
+/* ---------- Encabezado (celular y tablet chica) ---------- */
+.ast-mobile-header-wrap .ast-builder-grid-row.ast-builder-grid-row-has-sides {
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) !important;
+  column-gap: 12px;
+}
+.ast-mobile-header-wrap .site-header-primary-section-left,
+.ast-mobile-header-wrap .site-header-primary-section-right { min-width: 0; }
+.ast-mobile-header-wrap .site-header-primary-section-right { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+.ast-mobile-header-wrap .site-logo-img { padding-right: 0 !important; width: auto !important; }
+.ast-mobile-header-wrap .site-logo-img img { width: 54px !important; height: auto !important; max-width: none !important; }
+.ast-mobile-header-wrap .ast-custom-button { padding: 10px 14px !important; font-size: 10.5px !important; white-space: nowrap; }
+.ast-mobile-header-wrap .ast-builder-layout-element,
+.ast-mobile-header-wrap .ast-builder-button-wrap { flex: none; }
+
+/* Accesos rápidos de texto, sin forma de botón, para que se distingan de "Contactanos" */
+.rp-mnav { display: flex; align-items: center; gap: 18px; flex: none; margin: 0 auto; }
+.rp-mnav a {
+  position: relative; display: block; flex: none; padding: 6px 0; text-decoration: none !important; white-space: nowrap;
+  font-size: 13px; line-height: 1.12; font-weight: 600; letter-spacing: 0.01em; -webkit-tap-highlight-color: transparent;
+}
+.rp-mnav__planes { color: rgba(255, 255, 255, 0.92) !important; }
+.rp-mnav__planes::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 1px; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, #8a2be2, #c9a7ff);
+}
+.rp-mnav__calc { color: #c9a7ff !important; font-weight: 700; text-shadow: 0 0 16px rgba(138, 43, 226, 0.9); }
+.rp-mnav__calc::before {
+  content: ''; position: absolute; left: -9px; top: 50%; width: 5px; height: 5px; margin-top: -2px; border-radius: 50%;
+  background: #c9a7ff; box-shadow: 0 0 0 0 rgba(201, 167, 255, 0.7); animation: rp-ping 2.4s ease-out infinite;
+}
+.rp-mnav a:active { opacity: 0.7; }
+
+.rp-packs__dots { display: none; }
+.rp-packs__dots[hidden] { display: none !important; }
+@media (min-width: 922px) { .rp-mnav, .rp-packs__dots { display: none !important; } }
+
+/* ---------- Teléfonos ---------- */
+@media (max-width: 767px) {
+  /* Al abrir: solo el encabezado, la imagen y los títulos. Los servicios aparecen al empezar a bajar. */
+  .elementor-element-e2b531f.rp-hero {
+    min-height: 100vh; min-height: 100svh;
+    justify-content: center;
+    padding-top: 84px !important; padding-bottom: 64px !important;
+  }
+  /* Rayas raras junto al título: la grilla 3D del piso del hero se dibuja mal en algunos Android */
+  .rp-hero-grid, .rp-grain { display: none !important; }
+
+  /* Planes: se desliza hacia los costados en vez de apilarse (3 tarjetas largas = scroll interminable) */
+  .elementor .rp-packs__grid {
+    position: relative;
+    display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
+    gap: 12px !important;
+    width: 100vw !important; max-width: 100vw !important; box-sizing: border-box !important;
+    margin-left: calc(50% - 50vw) !important; margin-right: calc(50% - 50vw) !important;
+    padding: 8px 24px 14px !important;
+    overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; scroll-padding-inline: 24px;
+    -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; scrollbar-width: none;
+  }
+  .rp-packs__grid::-webkit-scrollbar { display: none; }
+  .elementor .rp-packs__grid > .rp-pack {
+    flex: 0 0 calc(100vw - 76px) !important; width: calc(100vw - 76px) !important; max-width: 360px !important;
+    scroll-snap-align: center; scroll-snap-stop: always;
+  }
+  /* Las tarjetas fuera de pantalla nunca "entran" para el observador: que no queden invisibles */
+  html.rp-motion:not(.rp-failed) .rp-packs__grid .rp-pack.rp-reveal:not(.rp-in) {
+    opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important;
+  }
+
+  .rp-packs__dots { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 2px 0 6px; }
+  .rp-packs__dots button {
+    width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; cursor: pointer;
+    background: rgba(255, 255, 255, 0.28); transition: width 0.3s ease, background 0.3s ease;
+  }
+  .rp-packs__dots button.is-active { width: 24px; background: #c9a7ff; }
+}
