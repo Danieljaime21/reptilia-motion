@@ -1487,3 +1487,9 @@ html.rp-lb-open, html.rp-lb-open body { overflow: hidden !important; }
 
 /* Portada oscura: el fondo del documento acompaña (evita franjas blancas al final) */
 html:has(body.home), body.home { background-color: #000 !important; }
+
+/* Celular: los carruseles del hero y la marquesina se salen a propósito del ancho de pantalla.
+   Con overflow solo en <body>, el navegador móvil ensancha toda la página (zoom-out, botón cortado).
+   Hay que recortarlo también en <html>. */
+html.rp-js { overflow-x: hidden; }
+html.rp-js body { overflow-x: hidden; max-width: 100%; }
