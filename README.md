@@ -108,8 +108,9 @@ Un panel a pantalla completa que se abre desde cualquier enlace a `#calculadora`
 
 Módulo `includes/seo.php` pensado para posicionar un negocio de servicios en su zona (en este caso, Rosario y Gran Rosario):
 
-- **Shortcode `[reptilia_rosario]`:** zonas de cobertura, servicios y preguntas frecuentes en HTML semántico (`<details>`), sin JavaScript.
-- **Datos estructurados (JSON-LD):** `ProfessionalService` con zonas de servicio y `FAQPage`. Ambos salen de las mismas funciones que pintan la página, así que lo que Google lee y lo que ve la persona nunca se desfasan.
+- **Datos estructurados (JSON-LD):** `ProfessionalService` con las zonas de servicio, invisible para el visitante y permitido por Google.
+- **Línea de cobertura al pie:** una frase chica con las zonas, en texto visible (no se oculta nada: el texto escondido con CSS puede penalizar al sitio).
+- **Shortcode `[reptilia_rosario]`:** sección completa de zonas, servicios y preguntas frecuentes en HTML semántico, disponible por si se quiere mostrar. Si se publica visible, también corresponde publicar su marcado `FAQPage`.
 - Un solo H1 por página, títulos y descripciones propios y una imagen de 1200×630 para compartir el enlace.
 
 ### Decisiones técnicas

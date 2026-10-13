@@ -41,3 +41,6 @@
   .rp-faq__item summary { padding: 16px 18px; font-size: 15.5px; }
   .rp-faq__item p { padding: 0 18px 18px; }
 }
+
+/* Línea discreta al pie */
+.rp-seo-foot { margin: 0; padding: 4px 20px 28px; text-align: center; font-size: 12px; line-height: 1.5; color: rgba(255, 255, 255, 0.36); background: #000; }

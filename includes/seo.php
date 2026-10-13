@@ -78,7 +78,7 @@ add_shortcode('reptilia_rosario', function () {
         . '</div>';
 });
 
-/** Datos estructurados: negocio local + preguntas frecuentes (solo en la portada). */
+/** Datos estructurados: negocio local (solo en la portada). El FAQPage se publica únicamente si el FAQ está visible. */
 add_action('wp_head', function () {
     if (!is_front_page()) {
         return;
@@ -105,20 +105,19 @@ add_action('wp_head', function () {
         ],
     ];
 
-    $faq = [
-        '@context' => 'https://schema.org',
-        '@type' => 'FAQPage',
-        'mainEntity' => array_map(fn($f) => [
-            '@type' => 'Question',
-            'name' => $f[0],
-            'acceptedAnswer' => ['@type' => 'Answer', 'text' => $f[1]],
-        ], rp_seo_faq()),
-    ];
-
     $flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG;
     echo '<script type="application/ld+json" id="rp-local-business">' . wp_json_encode($business, $flags) . '</script>' . "\n";
-    echo '<script type="application/ld+json" id="rp-faq">' . wp_json_encode($faq, $flags) . '</script>' . "\n";
 }, 30);
+
+/** Línea discreta al pie con las zonas de cobertura (texto visible, sin ocultar nada). */
+add_action('wp_footer', function () {
+    if (!is_front_page() || !rp_motion_enabled()) {
+        return;
+    }
+    $zones = rp_seo_zones();
+    $last = array_pop($zones);
+    echo '<p class="rp-seo-foot">Marketing digital para pymes en Rosario y Gran Rosario: ' . esc_html(implode(', ', $zones) . ' y ' . $last) . '.</p>';
+}, 5);
 
 /** Estilos de la sección (solo portada). */
 add_action('wp_enqueue_scripts', function () {
