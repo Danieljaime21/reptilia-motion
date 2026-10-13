@@ -8,7 +8,8 @@
 }
 .ast-mobile-header-wrap .site-header-primary-section-left,
 .ast-mobile-header-wrap .site-header-primary-section-right { min-width: 0; }
-.ast-mobile-header-wrap .site-header-primary-section-right { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+.ast-mobile-header-wrap .site-header-primary-section-right > * { padding-left: 0 !important; padding-right: 0 !important; }
+.ast-mobile-header-wrap .site-header-primary-section-right { display: flex; align-items: center; justify-content: flex-end; gap: 14px; }
 .ast-mobile-header-wrap .site-logo-img { padding-right: 0 !important; width: auto !important; }
 .ast-mobile-header-wrap .site-logo-img img { width: 54px !important; height: auto !important; max-width: none !important; }
 .ast-mobile-header-wrap .ast-custom-button { padding: 10px 14px !important; font-size: 10.5px !important; white-space: nowrap; }
@@ -16,20 +17,15 @@
 .ast-mobile-header-wrap .ast-builder-button-wrap { flex: none; }
 
 /* Accesos rápidos de texto, sin forma de botón, para que se distingan de "Contactanos" */
-.rp-mnav { display: flex; align-items: center; gap: 18px; flex: none; margin: 0 auto; }
+.rp-mnav { display: flex; align-items: center; gap: 14px; flex: none; margin: 0; }
 .rp-mnav a {
   position: relative; display: block; flex: none; padding: 6px 0; text-decoration: none !important; white-space: nowrap;
   font-size: 13px; line-height: 1.12; font-weight: 600; letter-spacing: 0.01em; -webkit-tap-highlight-color: transparent;
 }
-.rp-mnav__planes { color: rgba(255, 255, 255, 0.92) !important; }
-.rp-mnav__planes::after {
+.rp-mnav__planes, .rp-mnav__calc { color: rgba(255, 255, 255, 0.92) !important; }
+.rp-mnav__planes::after, .rp-mnav__calc::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: 1px; height: 2px; border-radius: 2px;
   background: linear-gradient(90deg, #8a2be2, #c9a7ff);
-}
-.rp-mnav__calc { color: #c9a7ff !important; font-weight: 700; text-shadow: 0 0 16px rgba(138, 43, 226, 0.9); }
-.rp-mnav__calc::before {
-  content: ''; position: absolute; left: -9px; top: 50%; width: 5px; height: 5px; margin-top: -2px; border-radius: 50%;
-  background: #c9a7ff; box-shadow: 0 0 0 0 rgba(201, 167, 255, 0.7); animation: rp-ping 2.4s ease-out infinite;
 }
 .rp-mnav a:active { opacity: 0.7; }
 
