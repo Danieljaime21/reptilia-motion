@@ -17,9 +17,9 @@
 .ast-mobile-header-wrap .ast-builder-button-wrap { flex: none; }
 
 /* Accesos rápidos de texto, sin forma de botón, para que se distingan de "Contactanos" */
-.rp-mnav { display: flex; align-items: center; gap: 14px; flex: none; margin: 0; }
+.rp-mnav { display: flex; align-items: flex-end; gap: 14px; flex: none; margin: 0; }
 .rp-mnav a {
-  position: relative; display: block; flex: none; padding: 6px 0; text-decoration: none !important; white-space: nowrap;
+  position: relative; display: block; flex: none; padding: 5px 0 7px; text-decoration: none !important; white-space: nowrap;
   font-size: 13px; line-height: 1.12; font-weight: 600; letter-spacing: 0.01em; -webkit-tap-highlight-color: transparent;
 }
 .rp-mnav__planes, .rp-mnav__calc { color: rgba(255, 255, 255, 0.92) !important; }
@@ -41,6 +41,13 @@
     justify-content: center;
     padding-top: 84px !important; padding-bottom: 64px !important;
   }
+  /* Título: sin sombra grande, sin máscara de recorte por palabra, sin brillo animado ni mezcla de capas.
+     Cualquiera de esas cosas puede dibujar rayitas en ciertos Android; queda un fundido simple. */
+  .elementor-element-c3c1a4a .elementor-heading-title { text-shadow: none !important; }
+  .rp-split .rp-word { overflow: visible !important; padding: 0 !important; margin: 0 !important; }
+  html.rp-motion .rp-split .rp-word-in { transform: none !important; will-change: auto !important; }
+  .rp-hl .rp-word-in { animation: none !important; background-position: 35% 50% !important; }
+  .rp-hero-glow, .rp-hero-media { mix-blend-mode: normal !important; }
   /* Rayas raras junto al título: la grilla 3D del piso del hero se dibuja mal en algunos Android */
   .rp-hero-grid, .rp-grain { display: none !important; }
 
@@ -72,4 +79,22 @@
     background: rgba(255, 255, 255, 0.28); transition: width 0.3s ease, background 0.3s ease;
   }
   .rp-packs__dots button.is-active { width: 24px; background: #c9a7ff; }
+
+  /* Tarjetas de planes compactas: que entren enteras en la pantalla, hasta el botón */
+  .elementor .rp-packs__grid > .rp-pack { padding: 18px 16px 16px !important; gap: 6px !important; }
+  .rp-pack .rp-pack__badge { position: absolute !important; top: 14px; right: 14px; margin: 0; }
+  .rp-pack .rp-pack__badge p { padding: 4px 9px; font-size: 9px; letter-spacing: 0.1em; }
+  .rp-pack .rp-pack__logo img { width: 58px !important; max-width: 58px !important; height: auto !important; }
+  .rp-pack .rp-pack__level p { font-size: 9.5px; letter-spacing: 0.18em; margin: 0; }
+  .rp-pack .rp-pack__name .elementor-heading-title { font-size: 25px !important; }
+  .rp-pack .rp-pack__tagline p { font-size: 12.5px; line-height: 1.4; margin: 0; }
+  .rp-pack .rp-pack__list { margin-top: 2px; }
+  .rp-pack .rp-pack__list .elementor-icon-list-items { gap: 6px; }
+  .rp-pack .rp-pack__list .elementor-icon-list-icon { width: 17px; height: 17px; margin-top: 0; }
+  .rp-pack .rp-pack__list .elementor-icon-list-icon svg { width: 8px !important; height: 8px !important; }
+  .rp-pack .rp-pack__list .elementor-icon-list-text { font-size: 13px; line-height: 1.3; padding-left: 8px !important; }
+  .rp-pack .rp-pack__pricewrap { padding-top: 10px; margin-top: 2px; }
+  .rp-pack .rp-pack__price { font-size: 27px; }
+  .rp-pack .rp-pack__cta { margin-top: 2px; }
+  .rp-pack .rp-pack__cta .elementor-button { padding: 11px 16px !important; font-size: 13.5px !important; }
 }
